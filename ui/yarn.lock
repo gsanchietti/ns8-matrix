@@ -3254,15 +3254,10 @@ date-fns-tz@^1.1.6:
   resolved "https://registry.npmjs.org/date-fns-tz/-/date-fns-tz-1.1.6.tgz"
   integrity sha512-nyy+URfFI3KUY7udEJozcoftju+KduaqkVfwyTIE0traBiVye09QnyWKLZK7drRr5h9B7sPJITmQnS3U6YOdQg==
 
-date-fns@^2.0.0:
+date-fns@^2.0.0, date-fns@^2.23.0:
   version "2.28.0"
   resolved "https://registry.npmjs.org/date-fns/-/date-fns-2.28.0.tgz"
   integrity sha512-8d35hViGYx/QH0icHYCeLmsLmMUheMmTyV9Fcm6gvNwdw31yXXH+O85sOBJ+OLnLQMKZowvpKb6FgMIQjcpvQw==
-
-date-fns@^2.23.0:
-  version "2.23.0"
-  resolved "https://registry.npmjs.org/date-fns/-/date-fns-2.23.0.tgz"
-  integrity sha512-5ycpauovVyAk0kXNZz6ZoB9AYMZB4DObse7P3BPWmyEjXNORTI8EJ6X0uaSAq4sCHzM1uajzrkr6HnsLQpxGXA==
 
 de-indent@^1.0.2:
   version "1.0.2"
@@ -8839,10 +8834,10 @@ vue-axios@^3.2.4:
   resolved "https://registry.npmjs.org/vue-axios/-/vue-axios-3.2.4.tgz"
   integrity sha512-8Dgws6dwt+1LoKEU4HDzIPfaRgWHl0xLDLW6kxrAk/z3GAJ2thkajcXC4qZgmqj0cZRx/Z/dzooKi5HWtUQwxA==
 
-vue-date-fns@^2.0.1:
-  version "2.0.1"
-  resolved "https://registry.npmjs.org/vue-date-fns/-/vue-date-fns-2.0.1.tgz"
-  integrity sha512-j2G97bVOKO0mVfFEnzCu5dQU0dgD8jLAAVU0dGRDqxZzzNXqep7d3WEGuuJ6mNOP5PM7GE+UqpKYfkL/LNmDKQ==
+vue-date-fns@^2.0.1, vue-date-fns@^2.0.2:
+  version "2.0.2"
+  resolved "https://registry.yarnpkg.com/vue-date-fns/-/vue-date-fns-2.0.2.tgz#dc548041e85e49582ac429df1a44834bfa29ba55"
+  integrity sha512-XHd2oYZY0AfWJohCwREhvfziJdiUHit6HYKUPTyvx5wDUaFA4TWDdkFp78IIrn0nl86oTGM1/5yXtNvqYXL5ew==
   dependencies:
     date-fns "^2.0.0"
 
