@@ -28,7 +28,7 @@ ExecStart=/usr/bin/podman run \
     --volume=dex-config:/etc/dex:Z \
     --volume=dex-data:/var/lib/dex:Z \
     --volume=%S/state/dex-config:/etc/dex:Z \
-    dexidp/dex:v2.38.0 \
+    dexidp/dex:v2.44.0-alpine \
     dex serve /etc/dex/config.yaml
 ExecStop=/usr/bin/podman stop --ignore --cidfile %t/dex.ctr-id -t 10
 ExecStopPost=/usr/bin/podman rm --ignore -f --cidfile %t/dex.ctr-id

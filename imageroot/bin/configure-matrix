@@ -62,7 +62,7 @@ os.makedirs('synapse-config', exist_ok=True)
 os.makedirs('element-config', exist_ok=True)
 
 # Template directory
-template_dir = '/imageroot/templates'
+template_dir = '../templates'
 
 # Process Dex configuration
 with open(f'{template_dir}/dex-config.yaml', 'r') as f:

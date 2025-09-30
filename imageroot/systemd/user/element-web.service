@@ -26,7 +26,7 @@ ExecStart=/usr/bin/podman run \
     --replace --name=element-web \
     --publish=127.0.0.1:${ELEMENT_PORT}:80 \
     --volume=%S/state/element-config:/app/config:Z \
-    vectorim/element-web:v1.11.46
+    vectorim/element-web:v1.12.0
 ExecStop=/usr/bin/podman stop --ignore --cidfile %t/element-web.ctr-id -t 10
 ExecStopPost=/usr/bin/podman rm --ignore -f --cidfile %t/element-web.ctr-id
 PIDFile=%t/element-web.pid

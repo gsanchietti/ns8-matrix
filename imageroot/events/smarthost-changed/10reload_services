@@ -1,0 +1,11 @@
+#!/bin/bash
+
+#
+# Copyright (C) 2023 Nethesis S.r.l.
+# SPDX-License-Identifier: GPL-3.0-or-later
+#
+
+set -e
+
+# Reload Synapse service to pick up new SMTP configuration
+systemctl --user try-reload-or-restart synapse.service

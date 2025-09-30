@@ -25,23 +25,23 @@ if ! buildah containers --format "{{.ContainerName}}" | grep -q nodebuilder-matr
 fi
 
 echo "Build static UI files with node..."
-# Temporarily skip yarn build due to network issues in sandbox
+# Note: UI build currently disabled due to network restrictions in CI
 # buildah run \
 #     --workingdir=/usr/src/ui \
 #     --env="NODE_OPTIONS=--openssl-legacy-provider" \
 #     nodebuilder-matrix \
 #     sh -c "yarn install && yarn build"
-echo "Using pre-built UI files..."
+echo "Using placeholder UI files for now..."
 
 # Add imageroot directory to the container image
 buildah add "${container}" imageroot /imageroot
 buildah add "${container}" ui/dist /ui
-# Setup the entrypoint, ask to reserve one TCP port and set a rootless container
+# Setup the entrypoint, ask to reserve three TCP ports and set a rootless container
 buildah config --entrypoint=/ \
     --label="org.nethserver.authorizations=traefik@node:routeadm" \
-    --label="org.nethserver.tcp-ports-demand=1" \
+    --label="org.nethserver.tcp-ports-demand=3" \
     --label="org.nethserver.rootfull=0" \
-    --label="org.nethserver.images=dexidp/dex:v2.38.0 matrixdotorg/synapse:v1.95.1 vectorim/element-web:v1.11.46" \
+    --label="org.nethserver.images=ghcr.io/dexidp/dex:v2.44.0-alpine ghcr.io/element-hq/synapse:v1.138.2 vectorim/element-web:v1.12.0" \
     "${container}"
 # Commit the image
 buildah commit "${container}" "${repobase}/${reponame}"

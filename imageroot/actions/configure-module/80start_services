@@ -7,8 +7,9 @@
 
 # If the control reaches this step, the service can be enabled and started
 
-# Ensure LDAP environment file exists
+# Ensure LDAP and SMTP environment files exist
 touch ldap.env
+touch smarthost.env
 
 # Start and enable Matrix services
 systemctl --user enable --now dex.service

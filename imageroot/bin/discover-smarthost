@@ -1,0 +1,36 @@
+#!/usr/bin/env python3
+
+#
+# Copyright (C) 2023 Nethesis S.r.l.
+# SPDX-License-Identifier: GPL-3.0-or-later
+#
+
+import sys
+import agent
+import os
+
+# Connect the local Redis replica. This is necessary to consistently start
+# the service if the leader node is not reachable:
+rdb = agent.redis_connect(use_replica=True)
+smtp_settings = agent.get_smarthost_settings(rdb)
+
+envfile = "smarthost.env"
+
+# Using .tmp suffix: do not overwrite the target file until the new one is
+# saved to disk:
+with open(envfile + ".tmp", "w") as efp:
+    # Configure SMTP settings for Synapse email notifications
+    print(f"SYNAPSE_SMTP_ENABLED={'true' if smtp_settings['enabled'] else 'false'}", file=efp)
+    print(f"SYNAPSE_SMTP_HOST={smtp_settings['host']}", file=efp)
+    print(f"SYNAPSE_SMTP_PORT={smtp_settings['port']}", file=efp)
+    print(f"SYNAPSE_SMTP_USERNAME={smtp_settings['username']}", file=efp)
+    print(f"SYNAPSE_SMTP_PASSWORD={smtp_settings['password']}", file=efp)
+    print(f"SYNAPSE_SMTP_REQUIRE_TRANSPORT_SECURITY={'true' if smtp_settings['encrypt_smtp'] else 'false'}", file=efp)
+    print(f"SYNAPSE_SMTP_FROM=noreply@{smtp_settings.get('host', 'localhost')}", file=efp)
+
+# Commit changes by replacing the existing envfile:
+os.replace(envfile + ".tmp", envfile)
+
+# NOTE: The generated envfile can be included in the service container
+#       with `podman run --env-file` or in Systemd unit with
+#       `Environment=-%S/state/smarthost.env`

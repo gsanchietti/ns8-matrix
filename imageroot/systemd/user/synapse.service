@@ -17,6 +17,7 @@ EnvironmentFile=%S/state/environment
 WorkingDirectory=%S/state
 Restart=always
 ExecStartPre=/bin/rm -f %t/synapse.pid %t/synapse.ctr-id
+ExecStartPre=-runagent discover-smarthost
 ExecStartPre=-runagent configure-matrix
 ExecStart=/usr/bin/podman run \
     --detach \
@@ -32,7 +33,8 @@ ExecStart=/usr/bin/podman run \
     --env=SYNAPSE_SERVER_NAME=${SYNAPSE_DOMAIN_NAME} \
     --env=SYNAPSE_REPORT_STATS=no \
     --env=SYNAPSE_CONFIG_PATH=/data/config/homeserver.yaml \
-    matrixdotorg/synapse:v1.95.1
+    --env-file=smarthost.env \
+    ghcr.io/element-hq/synapse:v1.138.2
 ExecStop=/usr/bin/podman stop --ignore --cidfile %t/synapse.ctr-id -t 10
 ExecStopPost=/usr/bin/podman rm --ignore -f --cidfile %t/synapse.ctr-id
 PIDFile=%t/synapse.pid
