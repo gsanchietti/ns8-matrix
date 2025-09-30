@@ -1,0 +1,49 @@
+#!/usr/bin/env python3
+
+#
+# Copyright (C) 2023 Nethesis S.r.l.
+# SPDX-License-Identifier: GPL-3.0-or-later
+#
+
+import sys
+import agent
+import os
+
+# Connect the local Redis replica. This is necessary to consistently start
+# the service if the leader node is not reachable:
+rdb = agent.redis_connect(use_replica=True)
+
+# Get LDAP settings from the NethServer 8 configuration
+ldap_settings = agent.get_bound_domain_list(rdb)
+
+envfile = "ldap.env"
+
+# Using .tmp suffix: do not overwrite the target file until the new one is
+# saved to disk:
+with open(envfile + ".tmp", "w") as efp:
+    if ldap_settings:
+        # Use the first available LDAP domain
+        ldap_domain = ldap_settings[0]
+        
+        print(f"LDAP_ENABLED=1", file=efp)
+        print(f"LDAP_HOST={ldap_domain['host']}", file=efp)
+        print(f"LDAP_PORT={ldap_domain['port']}", file=efp)
+        print(f"LDAP_BASE_DN={ldap_domain['base_dn']}", file=efp)
+        print(f"LDAP_BIND_DN={ldap_domain['bind_dn']}", file=efp)
+        print(f"LDAP_BIND_PASSWORD={ldap_domain['bind_password']}", file=efp)
+        print(f"LDAP_USER_FILTER={ldap_domain.get('user_filter', '(objectClass=person)')}", file=efp)
+    else:
+        print(f"LDAP_ENABLED=0", file=efp)
+        print(f"LDAP_HOST=127.0.0.1", file=efp)
+        print(f"LDAP_PORT=389", file=efp)
+        print(f"LDAP_BASE_DN=dc=directory,dc=nh", file=efp)
+        print(f"LDAP_BIND_DN=", file=efp)
+        print(f"LDAP_BIND_PASSWORD=", file=efp)
+        print(f"LDAP_USER_FILTER=(objectClass=person)", file=efp)
+
+# Commit changes by replacing the existing envfile:
+os.replace(envfile + ".tmp", envfile)
+
+# NOTE: The generated envfile can be included in the service container
+#       with `podman run --env-file` or in Systemd unit with
+#       `Environment=-%S/state/ldap.env`

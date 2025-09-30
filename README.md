@@ -1,97 +1,84 @@
-# ns8-kickstart
+# ns8-matrix
 
-This is a template module for [NethServer 8](https://github.com/NethServer/ns8-core).
-To start a new module from it:
+A NethServer 8 module for [Matrix](https://matrix.org/) chat service integration with LDAP authentication via OpenID Connect.
 
-1. Click on [Use this template](https://github.com/NethServer/ns8-kickstart/generate).
-   Name your repo with `ns8-` prefix (e.g. `ns8-mymodule`). 
-   Do not end your module name with a number, like ~~`ns8-baaad2`~~!
+This module provides a complete Matrix chat solution including:
+- **Dex** (OpenID Connect Provider) - Connects to NethServer LDAP for user authentication
+- **Synapse** (Matrix Homeserver) - Core Matrix server with OIDC authentication
+- **Element Web** (Web Client) - Web interface for Matrix chat
 
-1. Clone the repository, enter the cloned directory and
-   [configure your GIT identity](https://git-scm.com/book/en/v2/Getting-Started-First-Time-Git-Setup#_your_identity)
+## Features
 
-1. Rename some references inside the repo:
-   ```
-   modulename=$(basename $(pwd) | sed 's/^ns8-//')
-   git mv imageroot/systemd/user/kickstart.service imageroot/systemd/user/${modulename}.service
-   git mv tests/kickstart.robot tests/${modulename}.robot
-   sed -i "s/kickstart/${modulename}/g" $(find .github/ * -type f)
-   git commit -a -m "Repository initialization"
-   ```
-
-1. Edit this `README.md` file, by replacing this section with your module
-   description
-
-1. Adjust `.github/workflows` to your needs. `clean-registry.yml` might
-   need the proper list of image names to work correctly. Unused workflows
-   can be disabled from the GitHub Actions interface.
-
-1. Commit and push your local changes
+- Seamless integration with NethServer 8 LDAP user directory
+- OpenID Connect authentication through Dex
+- Configurable domain names for both Matrix server and Element web client
+- Automatic SSL/TLS certificate management via Traefik
+- Matrix Federation support
+- Persistent data storage
 
 ## Install
 
 Instantiate the module with:
 
-    add-module ghcr.io/nethserver/kickstart:latest 1
+    add-module ghcr.io/nethserver/matrix:latest 1
 
 The output of the command will return the instance name.
 Output example:
 
-    {"module_id": "kickstart1", "image_name": "kickstart", "image_url": "ghcr.io/nethserver/kickstart:latest"}
+    {"module_id": "matrix1", "image_name": "matrix", "image_url": "ghcr.io/nethserver/matrix:latest"}
 
 ## Configure
 
-Let's assume that the kickstart instance is named `kickstart1`.
+Let's assume that the matrix instance is named `matrix1`.
 
 Launch `configure-module`, by setting the following parameters:
-- `<MODULE_PARAM1_NAME>`: <MODULE_PARAM1_DESCRIPTION>
-- `<MODULE_PARAM2_NAME>`: <MODULE_PARAM2_DESCRIPTION>
-- ...
+- `synapse_domain_name`: The fully qualified domain name for the Matrix server (e.g., `matrix.example.com`)
+- `element_domain_name`: The fully qualified domain name for the Element web client (e.g., `chat.example.com`)
 
 Example:
 
-    api-cli run module/kickstart1/configure-module --data '{}'
+    api-cli run module/matrix1/configure-module --data '{"synapse_domain_name": "matrix.example.com", "element_domain_name": "chat.example.com"}'
 
 The above command will:
-- start and configure the kickstart instance
-- (describe configuration process)
-- ...
+- Configure Dex as OpenID Connect provider with LDAP backend
+- Start and configure the Synapse Matrix homeserver with OIDC authentication
+- Deploy Element Web client configured to connect to the local Synapse instance
+- Set up Traefik routes for both domains with automatic SSL certificates
 
-Send a test HTTP request to the kickstart backend service:
+Access your Matrix installation:
+- Matrix server: `https://matrix.example.com`
+- Element web client: `https://chat.example.com`
 
-    curl http://127.0.0.1/kickstart/
+## LDAP Integration
 
-## Smarthost setting discovery
+The module automatically discovers LDAP settings from the NethServer 8 configuration. 
+Dex is configured to connect to the NS8 LDAP proxy to authenticate users against 
+the centralized user directory.
 
-Some configuration settings, like the smarthost setup, are not part of the
-`configure-module` action input: they are discovered by looking at some
-Redis keys.  To ensure the module is always up-to-date with the
-centralized [smarthost
-setup](https://nethserver.github.io/ns8-core/core/smarthost/) every time
-kickstart starts, the command `bin/discover-smarthost` runs and refreshes
-the `state/smarthost.env` file with fresh values from Redis.
+The LDAP discovery happens every time the services start through the `bin/discover-ldap` 
+script, which refreshes the `state/ldap.env` file with current LDAP configuration.
 
-Furthermore if smarthost setup is changed when kickstart is already
-running, the event handler `events/smarthost-changed/10reload_services`
-restarts the main module service.
+If LDAP settings change while the module is running, the event handler 
+`events/ldap-changed/10reload_services` will restart the affected services.
 
-See also the `systemd/user/kickstart.service` file.
+## Matrix Federation
 
-This setting discovery is just an example to understand how the module is
-expected to work: it can be rewritten or discarded completely.
+The module supports Matrix federation by configuring the necessary server delegation 
+and federation settings. The Synapse server is configured with the proper server name
+and federation endpoints are exposed through Traefik.
 
 ## Uninstall
 
 To uninstall the instance:
 
-    remove-module --no-preserve kickstart1
+    remove-module --no-preserve matrix1
 
 ## Testing
 
 Test the module using the `test-module.sh` script:
 
 
-    ./test-module.sh <NODE_ADDR> ghcr.io/nethserver/kickstart:latest
+    ./test-module.sh <NODE_ADDR> ghcr.io/nethserver/matrix:latest
 
 The tests are made using [Robot Framework](https://robotframework.org/)
 

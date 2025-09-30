@@ -13,22 +13,71 @@ import os
 
 request = json.load(sys.stdin)
 
-# TODO: do something with the request payload. For example configure a
-# custom route in our web router. Here the path is hardcoded as
-# 'kickstart'.
+# Get configuration parameters
+synapse_domain_name = request.get('synapse_domain_name', '')
+element_domain_name = request.get('element_domain_name', '')
 
-# Configure Traefik to route "/kickstart" path requests to the kickstart service
+if not synapse_domain_name or not element_domain_name:
+    print("ERROR: Both synapse_domain_name and element_domain_name are required", file=sys.stderr)
+    sys.exit(1)
+
+# Read current environment
+env_vars = {}
+with open('environment', 'r') as f:
+    for line in f:
+        line = line.strip()
+        if '=' in line and not line.startswith('#'):
+            key, value = line.split('=', 1)
+            env_vars[key] = value
+
+# Update environment with new configuration
+env_vars['SYNAPSE_DOMAIN_NAME'] = synapse_domain_name
+env_vars['ELEMENT_DOMAIN_NAME'] = element_domain_name
+
+# Get allocated TCP ports from environment
+tcp_ports = []
+for i in range(1, 4):  # We requested 3 ports
+    port_var = f'TCP_PORT_{i}' if i > 1 else 'TCP_PORT'
+    if port_var in os.environ:
+        tcp_ports.append(os.environ[port_var])
+
+# Assign ports to services
+if len(tcp_ports) >= 3:
+    env_vars['DEX_PORT'] = tcp_ports[0]
+    env_vars['SYNAPSE_PORT'] = tcp_ports[1] 
+    env_vars['ELEMENT_PORT'] = tcp_ports[2]
+
+# Write updated environment
+with open('environment', 'w') as f:
+    for key, value in env_vars.items():
+        f.write(f'{key}={value}\n')
+
+# Configure Traefik routes for Synapse Matrix server
 response = agent.tasks.run(
     agent_id=agent.resolve_agent_id('traefik@node'),
     action='set-route',
     data={
-        'instance': os.environ['MODULE_ID'],
-        'url':  'http://127.0.0.1:' + os.environ["TCP_PORT"],
-        'http2https': False,
-        'lets_encrypt': False,
-        'path': '/kickstart',
+        'instance': os.environ['MODULE_ID'] + '-synapse',
+        'url': 'http://127.0.0.1:' + env_vars['SYNAPSE_PORT'],
+        'host': synapse_domain_name,
+        'http2https': True,
+        'lets_encrypt': True,
     },
 )
-
-# Check if traefik configuration has been successfull
 agent.assert_exp(response['exit_code'] == 0)
+
+# Configure Traefik routes for Element Web client
+response = agent.tasks.run(
+    agent_id=agent.resolve_agent_id('traefik@node'),
+    action='set-route',
+    data={
+        'instance': os.environ['MODULE_ID'] + '-element',
+        'url': 'http://127.0.0.1:' + env_vars['ELEMENT_PORT'],
+        'host': element_domain_name,
+        'http2https': True,
+        'lets_encrypt': True,
+    },
+)
+agent.assert_exp(response['exit_code'] == 0)
+
+print("Matrix module configured successfully")

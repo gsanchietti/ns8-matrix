@@ -1,8 +1,8 @@
 {
     "$schema": "http://json-schema.org/draft-07/schema#",
     "title": "configure-module input",
-    "$id": "http://schema.nethserver.org/kickstart/configure-module-input.json",
-    "description": "Configure kickstart",
+    "$id": "http://schema.nethserver.org/matrix/configure-module-input.json",
+    "description": "Configure matrix",
     "examples": [],
     "type": "object"
 }

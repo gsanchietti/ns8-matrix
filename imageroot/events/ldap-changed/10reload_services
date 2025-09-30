@@ -1,0 +1,16 @@
+#!/bin/bash
+
+#
+# Copyright (C) 2023 Nethesis S.r.l.
+# SPDX-License-Identifier: GPL-3.0-or-later
+#
+
+# Reload Matrix services when LDAP configuration changes
+
+set -e
+
+# Restart Dex service to pick up new LDAP configuration
+systemctl --user restart dex.service || true
+
+# Note: Synapse doesn't need restart as it connects to Dex, not directly to LDAP
+# Element Web doesn't need restart as it's a static web client

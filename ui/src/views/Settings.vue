@@ -23,14 +23,21 @@
       <cv-column>
         <cv-tile light>
           <cv-form @submit.prevent="configureModule">
-            <!-- TODO remove test field and code configuration fields -->
             <cv-text-input
-              :label="$t('settings.test_field')"
-              v-model="testField"
-              :placeholder="$t('settings.test_field')"
+              :label="$t('settings.synapse_domain_name')"
+              v-model="synapse_domain_name"
+              :placeholder="$t('settings.synapse_domain_placeholder')"
               :disabled="loading.getConfiguration || loading.configureModule"
-              :invalid-message="error.testField"
-              ref="testField"
+              :invalid-message="error.synapse_domain_name"
+              ref="synapse_domain_name"
+            ></cv-text-input>
+            <cv-text-input
+              :label="$t('settings.element_domain_name')"
+              v-model="element_domain_name"
+              :placeholder="$t('settings.element_domain_placeholder')"
+              :disabled="loading.getConfiguration || loading.configureModule"
+              :invalid-message="error.element_domain_name"
+              ref="element_domain_name"
             ></cv-text-input>
             <cv-row v-if="error.configureModule">
               <cv-column>
@@ -47,7 +54,7 @@
               :icon="Save20"
               :loading="loading.configureModule"
               :disabled="loading.getConfiguration || loading.configureModule"
-              >{{ $t("settings.save") }}</NsButton
+              >{{ $t("settings.save") }}</NsButton>
             >
           </cv-form>
         </cv-tile>
@@ -85,7 +92,8 @@ export default {
         page: "settings",
       },
       urlCheckInterval: null,
-      testField: "", // TODO remove
+      synapse_domain_name: "",
+      element_domain_name: "",
       loading: {
         getConfiguration: false,
         configureModule: false,
@@ -93,8 +101,8 @@ export default {
       error: {
         getConfiguration: "",
         configureModule: "",
-        testField: "", // TODO remove
-        // TODO add all validation error fields
+        synapse_domain_name: "",
+        element_domain_name: "",
       },
     };
   },
@@ -161,29 +169,35 @@ export default {
       this.loading.getConfiguration = false;
       const config = taskResult.output;
 
-      // TODO set configuration fields
-      // ...
+      // Set configuration fields
+      this.synapse_domain_name = config.synapse_domain_name || "";
+      this.element_domain_name = config.element_domain_name || "";
 
-      // TODO remove
-      console.log("config", config);
-
-      // TODO focus first configuration field
-      this.focusElement("testField");
+      // Focus first configuration field
+      this.focusElement("synapse_domain_name");
     },
     validateConfigureModule() {
       this.clearErrors(this);
       let isValidationOk = true;
 
-      // TODO remove testField and validate configuration fields
-      if (!this.testField) {
-        // test field cannot be empty
-        this.error.testField = this.$t("common.required");
-
+      // Validate synapse domain name
+      if (!this.synapse_domain_name) {
+        this.error.synapse_domain_name = this.$t("common.required");
         if (isValidationOk) {
-          this.focusElement("testField");
+          this.focusElement("synapse_domain_name");
           isValidationOk = false;
         }
       }
+
+      // Validate element domain name
+      if (!this.element_domain_name) {
+        this.error.element_domain_name = this.$t("common.required");
+        if (isValidationOk) {
+          this.focusElement("element_domain_name");
+          isValidationOk = false;
+        }
+      }
+
       return isValidationOk;
     },
     configureModuleValidationFailed(validationErrors) {
@@ -236,7 +250,8 @@ export default {
         this.createModuleTaskForApp(this.instanceName, {
           action: taskAction,
           data: {
-            // TODO configuration fields
+            synapse_domain_name: this.synapse_domain_name,
+            element_domain_name: this.element_domain_name,
           },
           extra: {
             title: this.$t("settings.configure_instance", {

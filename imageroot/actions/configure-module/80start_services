@@ -9,4 +9,4 @@
 
 touch smarthost.env
 
-systemctl --user enable --now kickstart.service
+systemctl --user enable --now matrix.service

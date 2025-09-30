@@ -1,0 +1,22 @@
+#
+# Copyright (C) 2023 Nethesis S.r.l.
+# SPDX-License-Identifier: GPL-3.0-or-later
+#
+
+#
+# This systemd unit coordinates the Matrix services (Dex, Synapse, Element)
+#
+[Unit]
+Description=Matrix chat service coordinator
+After=dex.service synapse.service element-web.service
+Wants=dex.service synapse.service element-web.service
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/bin/true
+ExecReload=/bin/true
+ExecStop=/bin/true
+
+[Install]
+WantedBy=default.target

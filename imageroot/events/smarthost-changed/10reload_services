@@ -7,4 +7,4 @@
 
 set -e
 
-systemctl --user try-reload-or-restart kickstart.service
+systemctl --user try-reload-or-restart matrix.service
