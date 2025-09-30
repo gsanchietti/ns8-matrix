@@ -24,7 +24,10 @@
         "title": "Settings",
         "configure_instance": "Configure {instance}",
         "save": "Save",
-        "test_field": "Test field"
+        "synapse_domain_name": "Matrix server domain",
+        "synapse_domain_placeholder": "e.g. matrix.example.com",
+        "element_domain_name": "Element web client domain", 
+        "element_domain_placeholder": "e.g. chat.example.com"
     },
     "about": {
         "title": "About"

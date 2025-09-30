@@ -1,0 +1,39 @@
+#
+# Copyright (C) 2023 Nethesis S.r.l.
+# SPDX-License-Identifier: GPL-3.0-or-later
+#
+
+#
+# This systemd unit starts Dex OpenID Connect provider using Podman.
+#
+[Unit]
+Description=Dex OpenID Connect Provider
+After=network-online.target
+
+[Service]
+Environment=PODMAN_SYSTEMD_UNIT=%n
+EnvironmentFile=%S/state/config.env
+WorkingDirectory=%S/state
+Restart=always
+ExecStartPre=/bin/rm -f %t/dex.pid %t/dex.ctr-id
+ExecStartPre=-runagent discover-ldap
+ExecStartPre=-runagent configure-matrix
+ExecStart=/usr/bin/podman run \
+    --detach \
+    --conmon-pidfile=%t/dex.pid \
+    --cidfile=%t/dex.ctr-id \
+    --cgroups=no-conmon \
+    --replace --name=dex \
+    --publish=127.0.0.1:${DEX_PORT}:5556 \
+    --volume=dex-config:/etc/dex:Z \
+    --volume=dex-data:/var/lib/dex:Z \
+    --volume=%S/state/dex-config:/etc/dex:Z \
+    dexidp/dex:v2.44.0-alpine \
+    dex serve /etc/dex/config.yaml
+ExecStop=/usr/bin/podman stop --ignore --cidfile %t/dex.ctr-id -t 10
+ExecStopPost=/usr/bin/podman rm --ignore -f --cidfile %t/dex.ctr-id
+PIDFile=%t/dex.pid
+Type=forking
+
+[Install]
+WantedBy=default.target

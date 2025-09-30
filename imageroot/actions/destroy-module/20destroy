@@ -5,7 +5,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 #
 
-# Remove traefik route
+# Remove traefik routes
 
 import os
 import sys
@@ -22,14 +22,20 @@ default_traefik_id = agent.resolve_agent_id('traefik@node')
 if default_traefik_id is None:
     sys.exit(2)
 
-# Remove traefik route
+# Remove Synapse traefik route
 response = agent.tasks.run(
     agent_id=default_traefik_id,
     action='delete-route',
     data={
-        'instance': os.environ['MODULE_ID']
+        'instance': os.environ['MODULE_ID'] + '-synapse'
     },
 )
 
-# Check if traefik configuration has been successfull
-agent.assert_exp(response['exit_code'] == 0)
+# Remove Element traefik route
+response = agent.tasks.run(
+    agent_id=default_traefik_id,
+    action='delete-route',
+    data={
+        'instance': os.environ['MODULE_ID'] + '-element'
+    },
+)

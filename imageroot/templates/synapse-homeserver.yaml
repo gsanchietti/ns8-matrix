@@ -1,0 +1,72 @@
+server_name: ${SYNAPSE_DOMAIN_NAME}
+pid_file: /data/homeserver.pid
+web_client_location: https://${ELEMENT_DOMAIN_NAME}/
+
+listeners:
+  - port: 8008
+    tls: false
+    type: http
+    x_forwarded: true
+    bind_addresses: ['0.0.0.0']
+    resources:
+      - names: [client, federation]
+
+database:
+  name: sqlite3
+  args:
+    database: /data/homeserver.db
+
+log_config: "/data/config/log.config"
+
+media_store_path: /data/media_store
+uploads_path: /data/uploads
+
+max_upload_size: 50M
+max_image_pixels: 32M
+
+dynamic_thumbnails: false
+
+url_preview_enabled: false
+
+enable_registration: false
+registration_shared_secret: "GENERATE_REGISTRATION_SECRET"
+
+report_stats: false
+
+macaroon_secret_key: "GENERATE_MACAROON_SECRET"
+form_secret: "GENERATE_FORM_SECRET"
+signing_key_path: "/data/signing.key"
+
+trusted_key_servers:
+  - server_name: "matrix.org"
+
+# Email configuration for notifications
+email:
+  enable_notifs: ${SYNAPSE_SMTP_ENABLED}
+  smtp_host: "${SYNAPSE_SMTP_HOST}"
+  smtp_port: ${SYNAPSE_SMTP_PORT}
+  smtp_user: "${SYNAPSE_SMTP_USERNAME}"
+  smtp_pass: "${SYNAPSE_SMTP_PASSWORD}"
+  require_transport_security: ${SYNAPSE_SMTP_REQUIRE_TRANSPORT_SECURITY}
+  notif_from: "${SYNAPSE_SMTP_FROM}"
+  app_name: "Matrix Chat"
+
+# OIDC configuration for Dex integration
+oidc_providers:
+  - idp_id: dex
+    idp_name: "NethServer LDAP"
+    issuer: "http://127.0.0.1:${DEX_PORT}/dex"
+    client_id: "synapse"
+    client_secret: "synapse-secret"
+    scopes: ["openid", "profile", "email"]
+    authorization_endpoint: "http://127.0.0.1:${DEX_PORT}/dex/auth"
+    token_endpoint: "http://127.0.0.1:${DEX_PORT}/dex/token"
+    userinfo_endpoint: "http://127.0.0.1:${DEX_PORT}/dex/userinfo"
+    discover: false
+    user_mapping_provider:
+      config:
+        localpart_template: "{{ user.preferred_username }}"
+        display_name_template: "{{ user.name|default(user.preferred_username) }}"
+        email_template: "{{ user.email }}"
+
+suppress_key_server_warning: true

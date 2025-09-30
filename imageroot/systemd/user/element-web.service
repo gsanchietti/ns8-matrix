@@ -1,0 +1,36 @@
+#
+# Copyright (C) 2023 Nethesis S.r.l.
+# SPDX-License-Identifier: GPL-3.0-or-later
+#
+
+#
+# This systemd unit starts Element Web client using Podman.
+#
+[Unit]
+Description=Element Web Matrix Client
+After=network-online.target synapse.service
+Wants=synapse.service
+
+[Service]
+Environment=PODMAN_SYSTEMD_UNIT=%n
+EnvironmentFile=%S/state/config.env
+WorkingDirectory=%S/state
+Restart=always
+ExecStartPre=/bin/rm -f %t/element-web.pid %t/element-web.ctr-id
+ExecStartPre=-runagent configure-matrix
+ExecStart=/usr/bin/podman run \
+    --detach \
+    --conmon-pidfile=%t/element-web.pid \
+    --cidfile=%t/element-web.ctr-id \
+    --cgroups=no-conmon \
+    --replace --name=element-web \
+    --publish=127.0.0.1:${ELEMENT_PORT}:80 \
+    --volume=%S/state/element-config:/app/config:Z \
+    vectorim/element-web:v1.12.0
+ExecStop=/usr/bin/podman stop --ignore --cidfile %t/element-web.ctr-id -t 10
+ExecStopPost=/usr/bin/podman rm --ignore -f --cidfile %t/element-web.ctr-id
+PIDFile=%t/element-web.pid
+Type=forking
+
+[Install]
+WantedBy=default.target

@@ -11,4 +11,11 @@ import agent
 
 config = {}
 
+# Read current configuration from config file
+env_vars = agent.read_envfile("config.env")
+
+# Extract configuration values
+config['synapse_domain_name'] = env_vars.get('SYNAPSE_DOMAIN_NAME', '')
+config['element_domain_name'] = env_vars.get('ELEMENT_DOMAIN_NAME', '')
+
 json.dump(config, fp=sys.stdout)

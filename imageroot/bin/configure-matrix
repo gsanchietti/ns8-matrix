@@ -1,0 +1,86 @@
+#!/usr/bin/env python3
+
+#
+# Copyright (C) 2023 Nethesis S.r.l.
+# SPDX-License-Identifier: GPL-3.0-or-later
+#
+
+import os
+import sys
+import secrets
+import string
+import agent
+
+def generate_secret(length=32):
+    """Generate a random secret string"""
+    alphabet = string.ascii_letters + string.digits
+    return ''.join(secrets.choice(alphabet) for _ in range(length))
+
+def substitute_env_vars(content, env_vars):
+    """Replace ${VAR} patterns with environment variable values"""
+    for key, value in env_vars.items():
+        content = content.replace(f'${{{key}}}', str(value))
+    return content
+
+# Read environment variables from config
+env_vars = agent.read_envfile("config.env")
+
+# Read LDAP environment if available
+ldap_env = agent.read_envfile("ldap.env")
+env_vars.update(ldap_env)
+
+# Generate secrets if they don't exist
+secrets_file = 'matrix-secrets.env'
+if not os.path.exists(secrets_file):
+    secrets_env = {
+        "REGISTRATION_SECRET": generate_secret(),
+        "MACAROON_SECRET": generate_secret(),
+        "FORM_SECRET": generate_secret()
+    }
+    agent.write_envfile(secrets_file, secrets_env)
+
+# Read generated secrets
+secrets_env = agent.read_envfile(secrets_file)
+env_vars.update(secrets_env)
+
+# Create configuration directories
+os.makedirs('dex-config', exist_ok=True)
+os.makedirs('synapse-config', exist_ok=True)
+os.makedirs('element-config', exist_ok=True)
+
+# Template directory
+template_dir = '../templates'
+
+# Process Dex configuration
+with open(f'{template_dir}/dex-config.yaml', 'r') as f:
+    dex_config = substitute_env_vars(f.read(), env_vars)
+
+with open('dex-config/config.yaml', 'w') as f:
+    f.write(dex_config)
+
+# Process Synapse configuration
+with open(f'{template_dir}/synapse-homeserver.yaml', 'r') as f:
+    synapse_config = substitute_env_vars(f.read(), env_vars)
+    # Replace secret placeholders
+    synapse_config = synapse_config.replace('GENERATE_REGISTRATION_SECRET', env_vars.get('REGISTRATION_SECRET', ''))
+    synapse_config = synapse_config.replace('GENERATE_MACAROON_SECRET', env_vars.get('MACAROON_SECRET', ''))
+    synapse_config = synapse_config.replace('GENERATE_FORM_SECRET', env_vars.get('FORM_SECRET', ''))
+
+with open('synapse-config/homeserver.yaml', 'w') as f:
+    f.write(synapse_config)
+
+# Copy log config
+with open(f'{template_dir}/synapse-log.config', 'r') as f:
+    log_config = f.read()
+
+with open('synapse-config/log.config', 'w') as f:
+    f.write(log_config)
+
+# Process Element configuration
+with open(f'{template_dir}/element-config.json', 'r') as f:
+    element_config = substitute_env_vars(f.read(), env_vars)
+
+with open('element-config/config.json', 'w') as f:
+    f.write(element_config)
+
+print("Matrix configuration files generated successfully")

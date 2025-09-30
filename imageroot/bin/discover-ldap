@@ -1,0 +1,39 @@
+#!/usr/bin/env python3
+
+#
+# Copyright (C) 2023 Nethesis S.r.l.
+# SPDX-License-Identifier: GPL-3.0-or-later
+#
+
+import sys
+import agent
+import os
+
+# Connect the local Redis replica
+rdb = agent.redis_connect(use_replica=True)
+
+# Get LDAP proxy settings from NS8 core
+# In NS8, LDAP is typically accessed via the ldapproxy service
+ldap_host = "127.0.0.1"
+ldap_port = "20001"  # Standard NS8 LDAP proxy port
+ldap_base_dn = "dc=directory,dc=nh"
+
+envfile = "ldap.env"
+
+# Using .tmp suffix: do not overwrite the target file until the new one is
+# saved to disk:
+with open(envfile + ".tmp", "w") as efp:
+    print(f"LDAP_ENABLED=1", file=efp)
+    print(f"LDAP_HOST={ldap_host}", file=efp)
+    print(f"LDAP_PORT={ldap_port}", file=efp)
+    print(f"LDAP_BASE_DN={ldap_base_dn}", file=efp)
+    print(f"LDAP_BIND_DN=", file=efp)
+    print(f"LDAP_BIND_PASSWORD=", file=efp)
+    print(f"LDAP_USER_FILTER=(objectClass=person)", file=efp)
+
+# Commit changes by replacing the existing envfile:
+os.replace(envfile + ".tmp", envfile)
+
+# NOTE: The generated envfile can be included in the service container
+#       with `podman run --env-file` or in Systemd unit with
+#       `Environment=-%S/state/ldap.env`

@@ -1,0 +1,42 @@
+issuer: http://127.0.0.1:${DEX_PORT}/dex
+
+storage:
+  type: memory
+
+web:
+  http: 0.0.0.0:5556
+
+staticClients:
+  - id: synapse
+    redirectURIs:
+      - 'https://${SYNAPSE_DOMAIN_NAME}/_synapse/client/oidc/callback'
+    name: 'Synapse'
+    secret: synapse-secret
+
+connectors:
+  - type: ldap
+    id: ldap
+    name: LDAP
+    config:
+      host: ${LDAP_HOST}:${LDAP_PORT}
+      insecureNoSSL: true
+      bindDN: ${LDAP_BIND_DN}
+      bindPW: ${LDAP_BIND_PASSWORD}
+      usernamePrompt: Username
+      userSearch:
+        baseDN: ${LDAP_BASE_DN}
+        filter: ${LDAP_USER_FILTER}
+        username: uid
+        idAttr: uid
+        emailAttr: mail
+        nameAttr: cn
+      groupSearch:
+        baseDN: ${LDAP_BASE_DN}
+        filter: "(objectClass=groupOfNames)"
+        userMatchers:
+          - userAttr: DN
+            groupAttr: member
+        nameAttr: cn
+
+oauth2:
+  skipApprovalScreen: true

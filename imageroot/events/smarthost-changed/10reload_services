@@ -7,4 +7,5 @@
 
 set -e
 
-systemctl --user try-reload-or-restart kickstart.service
+# Reload Synapse service to pick up new SMTP configuration
+systemctl --user try-reload-or-restart synapse.service
