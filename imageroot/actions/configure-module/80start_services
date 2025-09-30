@@ -16,5 +16,3 @@ systemctl --user enable --now dex.service
 systemctl --user enable --now synapse.service  
 systemctl --user enable --now element-web.service
 systemctl --user enable --now matrix.service
-
-echo "Matrix services started successfully"

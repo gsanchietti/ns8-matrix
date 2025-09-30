@@ -29,20 +29,13 @@ env_vars['SYNAPSE_DOMAIN_NAME'] = synapse_domain_name
 env_vars['ELEMENT_DOMAIN_NAME'] = element_domain_name
 
 # Get allocated TCP ports from environment - NS8 allocates sequential ports
-tcp_ports = []
-base_port = int(os.environ.get('TCP_PORT', '20001'))
-for i in range(3):  # We requested 3 ports
-    port_var = f'TCP_PORT_{i}' if i > 0 else 'TCP_PORT'
-    if port_var in os.environ:
-        tcp_ports.append(os.environ[port_var])
-    else:
-        # Fallback to sequential port allocation
-        tcp_ports.append(str(base_port + i))
+tcp_ports = os.environ.get('TCP_PORTS', '20001').split(',')
 
 # Assign ports to services
-env_vars['DEX_PORT'] = tcp_ports[0] if len(tcp_ports) > 0 else str(base_port)
-env_vars['SYNAPSE_PORT'] = tcp_ports[1] if len(tcp_ports) > 1 else str(base_port + 1)
-env_vars['ELEMENT_PORT'] = tcp_ports[2] if len(tcp_ports) > 2 else str(base_port + 2)
+env_vars['DEX_PORT'] = tcp_ports[0]
+env_vars['SYNAPSE_PORT'] = tcp_ports[1]
+env_vars['ELEMENT_PORT'] = tcp_ports[2]
+env_vars['SYGNAL_PORT'] = tcp_ports[3] # For future use
 
 # Write updated configuration
 agent.write_envfile("config.env", env_vars)
