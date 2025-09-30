@@ -18,18 +18,25 @@ envfile = "smarthost.env"
 # Using .tmp suffix: do not overwrite the target file until the new one is
 # saved to disk:
 with open(envfile + ".tmp", "w") as efp:
-    # Configure SMTP settings for Synapse email notifications
-    print(f"SYNAPSE_SMTP_ENABLED={'true' if smtp_settings['enabled'] else 'false'}", file=efp)
-    print(f"SYNAPSE_SMTP_HOST={smtp_settings['host']}", file=efp)
-    print(f"SYNAPSE_SMTP_PORT={smtp_settings['port']}", file=efp)
-    print(f"SYNAPSE_SMTP_USERNAME={smtp_settings['username']}", file=efp)
-    print(f"SYNAPSE_SMTP_PASSWORD={smtp_settings['password']}", file=efp)
-    print(f"SYNAPSE_SMTP_REQUIRE_TRANSPORT_SECURITY={'true' if smtp_settings['encrypt_smtp'] else 'false'}", file=efp)
-    print(f"SYNAPSE_SMTP_FROM=noreply@{smtp_settings.get('host', 'localhost')}", file=efp)
+    if smtp_settings.get('host'):
+        # Configure SMTP settings for Synapse email notifications
+        print(f"SYNAPSE_SMTP_ENABLED={'true' if smtp_settings['enabled'] else 'false'}", file=efp)
+        print(f"SYNAPSE_SMTP_HOST={smtp_settings['host']}", file=efp)
+        print(f"SYNAPSE_SMTP_PORT={smtp_settings['port']}", file=efp)
+        print(f"SYNAPSE_SMTP_USERNAME={smtp_settings['username']}", file=efp)
+        print(f"SYNAPSE_SMTP_PASSWORD={smtp_settings['password']}", file=efp)
+        print(f"SYNAPSE_SMTP_REQUIRE_TRANSPORT_SECURITY={'true' if smtp_settings['encrypt_smtp'] else 'false'}", file=efp)
+        print(f"SYNAPSE_SMTP_FROM=no-reply@{smtp_settings.get('host', 'localhost')}", file=efp)
+    else:
+        # No SMTP configuration found: disable email notifications
+        print("SYNAPSE_SMTP_ENABLED=false", file=efp)
+        print("SYNAPSE_SMTP_HOST=localhost", file=efp)
+        print("SYNAPSE_SMTP_PORT=25", file=efp)
+        print("SYNAPSE_SMTP_USERNAME=", file=efp)
+        print("SYNAPSE_SMTP_PASSWORD=", file=efp)
+        print("SYNAPSE_SMTP_REQUIRE_TRANSPORT_SECURITY=false", file=efp)
+        print("SYNAPSE_SMTP_FROM=no-reply@localhost", file=efp)
 
 # Commit changes by replacing the existing envfile:
 os.replace(envfile + ".tmp", envfile)
 
-# NOTE: The generated envfile can be included in the service container
-#       with `podman run --env-file` or in Systemd unit with
-#       `Environment=-%S/state/smarthost.env`

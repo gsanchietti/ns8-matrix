@@ -29,13 +29,13 @@ dynamic_thumbnails: false
 url_preview_enabled: false
 
 enable_registration: false
-registration_shared_secret: "GENERATE_REGISTRATION_SECRET"
+registration_shared_secret: ${REGISTRATION_SECRET}
 
 report_stats: false
 
-macaroon_secret_key: "GENERATE_MACAROON_SECRET"
-form_secret: "GENERATE_FORM_SECRET"
-signing_key_path: "/data/signing.key"
+macaroon_secret_key: ${MACAROON_SECRET}
+form_secret: ${FORM_SECRET}
+signing_key_path: "/data/${SYNAPSE_DOMAIN_NAME}.signing.key"
 
 trusted_key_servers:
   - server_name: "matrix.org"
@@ -55,6 +55,7 @@ email:
 oidc_providers:
   - idp_id: dex
     idp_name: "NethServer LDAP"
+    skip_verification: true # This is needed as Dex is served on an insecure endpoint
     issuer: "http://127.0.0.1:${DEX_PORT}/dex"
     client_id: "synapse"
     client_secret: "synapse-secret"
@@ -62,6 +63,7 @@ oidc_providers:
     authorization_endpoint: "http://127.0.0.1:${DEX_PORT}/dex/auth"
     token_endpoint: "http://127.0.0.1:${DEX_PORT}/dex/token"
     userinfo_endpoint: "http://127.0.0.1:${DEX_PORT}/dex/userinfo"
+    jwks_uri: "http://127.0.0.1:${DEX_PORT}/dex/keys"
     discover: false
     user_mapping_provider:
       config:

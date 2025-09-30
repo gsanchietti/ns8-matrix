@@ -13,28 +13,31 @@ Wants=dex.service
 
 [Service]
 Environment=PODMAN_SYSTEMD_UNIT=%n
+EnvironmentFile=%S/state/environment
 EnvironmentFile=%S/state/config.env
+EnvironmentFile=%S/state/smarthost.env
 WorkingDirectory=%S/state
 Restart=always
 ExecStartPre=/bin/rm -f %t/synapse.pid %t/synapse.ctr-id
 ExecStartPre=-runagent discover-smarthost
 ExecStartPre=-runagent configure-matrix
+ExecStartPre=podman run --rm -e SYNAPSE_SERVER_NAME=${SYNAPSE_DOMAIN_NAME}\
+ -e SYNAPSE_REPORT_STATS=no  --volume=synapse-data:/data:z --volume=synapse-config:/data/config:z \
+ ${SYNAPSE_IMAGE} generate
 ExecStart=/usr/bin/podman run \
     --detach \
     --conmon-pidfile=%t/synapse.pid \
     --cidfile=%t/synapse.ctr-id \
     --cgroups=no-conmon \
     --replace --name=synapse \
-    --publish=127.0.0.1:${SYNAPSE_PORT}:8008 \
-    --volume=synapse-data:/data:Z \
-    --volume=%S/state/synapse-config:/data/config:Z \
-    --volume=synapse-logs:/data/logs:Z \
-    --volume=synapse-media:/data/media_store:Z \
+    --network=host \
+    --volume=synapse-data:/data:z \
+    --volume=%S/state/synapse-config:/data/config:z \
     --env=SYNAPSE_SERVER_NAME=${SYNAPSE_DOMAIN_NAME} \
     --env=SYNAPSE_REPORT_STATS=no \
     --env=SYNAPSE_CONFIG_PATH=/data/config/homeserver.yaml \
     --env-file=smarthost.env \
-    ghcr.io/element-hq/synapse:v1.138.2
+    ${SYNAPSE_IMAGE}
 ExecStop=/usr/bin/podman stop --ignore --cidfile %t/synapse.ctr-id -t 10
 ExecStopPost=/usr/bin/podman rm --ignore -f --cidfile %t/synapse.ctr-id
 PIDFile=%t/synapse.pid

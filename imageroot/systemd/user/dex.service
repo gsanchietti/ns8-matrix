@@ -12,6 +12,7 @@ After=network-online.target
 
 [Service]
 Environment=PODMAN_SYSTEMD_UNIT=%n
+EnvironmentFile=%S/state/environment
 EnvironmentFile=%S/state/config.env
 WorkingDirectory=%S/state
 Restart=always
@@ -24,10 +25,10 @@ ExecStart=/usr/bin/podman run \
     --cidfile=%t/dex.ctr-id \
     --cgroups=no-conmon \
     --replace --name=dex \
-    --publish=127.0.0.1:${DEX_PORT}:5556 \
+    --network=host \
     --volume=dex-data:/var/lib/dex:Z \
     --volume=%S/state/dex-config:/etc/dex:Z \
-    dexidp/dex:v2.44.0-alpine \
+    ${DEX_IMAGE} \
     dex serve /etc/dex/config.yaml
 ExecStop=/usr/bin/podman stop --ignore --cidfile %t/dex.ctr-id -t 10
 ExecStopPost=/usr/bin/podman rm --ignore -f --cidfile %t/dex.ctr-id

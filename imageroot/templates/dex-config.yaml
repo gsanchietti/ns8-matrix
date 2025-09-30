@@ -1,7 +1,9 @@
 issuer: http://127.0.0.1:${DEX_PORT}/dex
 
 storage:
-  type: memory
+  type: sqlite3
+  config:
+    file: /var/lib/dex/dex.db
 
 web:
   http: 0.0.0.0:${DEX_PORT}
@@ -18,20 +20,20 @@ connectors:
     id: ldap
     name: LDAP
     config:
-      host: ${LDAP_HOST}:${LDAP_PORT}
+      host: ${DEX_LDAP_HOST}:${DEX_LDAP_PORT}
       insecureNoSSL: true
-      bindDN: ${LDAP_BIND_DN}
-      bindPW: ${LDAP_BIND_PASSWORD}
+      bindDN: ${DEX_LDAP_BIND_DN}
+      bindPW: ${DEX_LDAP_BIND_PASSWORD}
       usernamePrompt: Username
       userSearch:
-        baseDN: ${LDAP_BASE_DN}
-        filter: ${LDAP_USER_FILTER}
+        baseDN: ${DEX_LDAP_BASE_DN}
+        filter: ${DEX_LDAP_USER_FILTER}
         username: uid
         idAttr: uid
         emailAttr: mail
         nameAttr: cn
       groupSearch:
-        baseDN: ${LDAP_BASE_DN}
+        baseDN: ${DEX_LDAP_BASE_DN}
         filter: "(objectClass=groupOfNames)"
         userMatchers:
           - userAttr: DN

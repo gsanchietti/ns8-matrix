@@ -42,6 +42,10 @@ if not os.path.exists(secrets_file):
 secrets_env = agent.read_envfile(secrets_file)
 env_vars.update(secrets_env)
 
+# Read smarthost settings if available
+smarthost_env = agent.read_envfile("smarthost.env")
+env_vars.update(smarthost_env)
+
 # Create configuration directories
 os.makedirs('dex-config', exist_ok=True)
 os.makedirs('synapse-config', exist_ok=True)
@@ -60,11 +64,7 @@ with open('dex-config/config.yaml', 'w') as f:
 # Process Synapse configuration
 with open(f'{template_dir}/synapse-homeserver.yaml', 'r') as f:
     synapse_config = substitute_env_vars(f.read(), env_vars)
-    # Replace secret placeholders
-    synapse_config = synapse_config.replace('GENERATE_REGISTRATION_SECRET', env_vars.get('REGISTRATION_SECRET', ''))
-    synapse_config = synapse_config.replace('GENERATE_MACAROON_SECRET', env_vars.get('MACAROON_SECRET', ''))
-    synapse_config = synapse_config.replace('GENERATE_FORM_SECRET', env_vars.get('FORM_SECRET', ''))
-
+ 
 with open('synapse-config/homeserver.yaml', 'w') as f:
     f.write(synapse_config)
 
@@ -81,5 +81,3 @@ with open(f'{template_dir}/element-config.json', 'r') as f:
 
 with open('element-config/config.json', 'w') as f:
     f.write(element_config)
-
-print("Matrix configuration files generated successfully")

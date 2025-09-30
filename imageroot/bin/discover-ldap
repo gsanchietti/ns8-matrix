@@ -37,14 +37,14 @@ except:
         'bind_password': 'invalid',
     }
 
-tmpfile = "discover.env." + str(os.getpid())
+tmpfile = "ldap.env." + str(os.getpid())
 
 with open(tmpfile, "w") as denv:
     print('DEX_LDAP_PORT=' + str(odom['port']), file=denv)
-    print('DEX_LDAP_USER=' + odom['bind_dn'], file=denv)
+    print('DEX_LDAP_BIND_DN=' + odom['bind_dn'], file=denv)
     print('DEX_LDAP_HOST=' + odom['host'], file=denv)
-    print('DEX_LDAP_PASS=' + odom['bind_password'], file=denv)
+    print('DEX_LDAP_BIND_PASSWORD=' + odom['bind_password'], file=denv)
     print('DEX_LDAP_SCHEMA=' + odom['schema'], file=denv)
-    print('DEX_LDAP_BASE=' + odom['base_dn'], file=denv)
+    print('DEX_LDAP_BASE_DN=' + odom['base_dn'], file=denv)
 
-os.replace(tmpfile, "discovery.env")
+os.replace(tmpfile, "ldap.env")
