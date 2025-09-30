@@ -7,6 +7,13 @@
 
 # If the control reaches this step, the service can be enabled and started
 
-touch smarthost.env
+# Ensure LDAP environment file exists
+touch ldap.env
 
+# Start and enable Matrix services
+systemctl --user enable --now dex.service
+systemctl --user enable --now synapse.service  
+systemctl --user enable --now element-web.service
 systemctl --user enable --now matrix.service
+
+echo "Matrix services started successfully"

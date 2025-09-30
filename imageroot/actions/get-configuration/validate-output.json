@@ -2,7 +2,22 @@
     "$schema": "http://json-schema.org/draft-07/schema#",
     "title": "get-configuration output",
     "$id": "http://schema.nethserver.org/matrix/get-configuration-output.json",
-    "description": "Get matrix configuration",
-    "examples": [],
-    "type": "object"
+    "description": "Get Matrix configuration",
+    "examples": [
+        {
+            "synapse_domain_name": "matrix.example.com",
+            "element_domain_name": "chat.example.com"
+        }
+    ],
+    "type": "object",
+    "properties": {
+        "synapse_domain_name": {
+            "type": "string",
+            "description": "Fully qualified domain name for the Matrix homeserver"
+        },
+        "element_domain_name": {
+            "type": "string",
+            "description": "Fully qualified domain name for the Element web client"
+        }
+    }
 }

@@ -61,15 +61,18 @@ os.makedirs('dex-config', exist_ok=True)
 os.makedirs('synapse-config', exist_ok=True)
 os.makedirs('element-config', exist_ok=True)
 
+# Template directory
+template_dir = '/imageroot/templates'
+
 # Process Dex configuration
-with open('/imageroot/templates/dex-config.yaml', 'r') as f:
+with open(f'{template_dir}/dex-config.yaml', 'r') as f:
     dex_config = substitute_env_vars(f.read(), env_vars)
 
 with open('dex-config/config.yaml', 'w') as f:
     f.write(dex_config)
 
 # Process Synapse configuration
-with open('/imageroot/templates/synapse-homeserver.yaml', 'r') as f:
+with open(f'{template_dir}/synapse-homeserver.yaml', 'r') as f:
     synapse_config = substitute_env_vars(f.read(), env_vars)
     # Replace secret placeholders
     synapse_config = synapse_config.replace('GENERATE_REGISTRATION_SECRET', env_vars.get('REGISTRATION_SECRET', ''))
@@ -80,14 +83,14 @@ with open('synapse-config/homeserver.yaml', 'w') as f:
     f.write(synapse_config)
 
 # Copy log config
-with open('/imageroot/templates/synapse-log.config', 'r') as f:
+with open(f'{template_dir}/synapse-log.config', 'r') as f:
     log_config = f.read()
 
 with open('synapse-config/log.config', 'w') as f:
     f.write(log_config)
 
 # Process Element configuration
-with open('/imageroot/templates/element-config.json', 'r') as f:
+with open(f'{template_dir}/element-config.json', 'r') as f:
     element_config = substitute_env_vars(f.read(), env_vars)
 
 with open('element-config/config.json', 'w') as f:

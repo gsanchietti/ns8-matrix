@@ -2,7 +2,30 @@
     "$schema": "http://json-schema.org/draft-07/schema#",
     "title": "configure-module input",
     "$id": "http://schema.nethserver.org/matrix/configure-module-input.json",
-    "description": "Configure matrix",
-    "examples": [],
-    "type": "object"
+    "description": "Configure Matrix chat service",
+    "examples": [
+        {
+            "synapse_domain_name": "matrix.example.com",
+            "element_domain_name": "chat.example.com"
+        }
+    ],
+    "type": "object",
+    "required": [
+        "synapse_domain_name",
+        "element_domain_name"
+    ],
+    "properties": {
+        "synapse_domain_name": {
+            "type": "string",
+            "description": "Fully qualified domain name for the Matrix homeserver",
+            "format": "hostname",
+            "minLength": 1
+        },
+        "element_domain_name": {
+            "type": "string", 
+            "description": "Fully qualified domain name for the Element web client",
+            "format": "hostname",
+            "minLength": 1
+        }
+    }
 }

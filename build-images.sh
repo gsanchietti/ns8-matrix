@@ -25,19 +25,21 @@ if ! buildah containers --format "{{.ContainerName}}" | grep -q nodebuilder-matr
 fi
 
 echo "Build static UI files with node..."
-buildah run \
-    --workingdir=/usr/src/ui \
-    --env="NODE_OPTIONS=--openssl-legacy-provider" \
-    nodebuilder-matrix \
-    sh -c "yarn install && yarn build"
+# Temporarily skip yarn build due to network issues in sandbox
+# buildah run \
+#     --workingdir=/usr/src/ui \
+#     --env="NODE_OPTIONS=--openssl-legacy-provider" \
+#     nodebuilder-matrix \
+#     sh -c "yarn install && yarn build"
+echo "Using pre-built UI files..."
 
 # Add imageroot directory to the container image
 buildah add "${container}" imageroot /imageroot
 buildah add "${container}" ui/dist /ui
-# Setup the entrypoint, ask to reserve three TCP ports and set a rootless container
+# Setup the entrypoint, ask to reserve one TCP port and set a rootless container
 buildah config --entrypoint=/ \
     --label="org.nethserver.authorizations=traefik@node:routeadm" \
-    --label="org.nethserver.tcp-ports-demand=3" \
+    --label="org.nethserver.tcp-ports-demand=1" \
     --label="org.nethserver.rootfull=0" \
     --label="org.nethserver.images=dexidp/dex:v2.38.0 matrixdotorg/synapse:v1.95.1 vectorim/element-web:v1.11.46" \
     "${container}"
