@@ -16,17 +16,24 @@ request = json.load(sys.stdin)
 # Get configuration parameters
 synapse_domain_name = request.get('synapse_domain_name', '')
 element_domain_name = request.get('element_domain_name', '')
+lets_encrypt = request.get('lets_encrypt', False)
+dex_ldap_domain = request.get('dex_ldap_domain', '')
 
 if not synapse_domain_name or not element_domain_name:
     print("ERROR: Both synapse_domain_name and element_domain_name are required", file=sys.stderr)
     sys.exit(1)
 
 # Read current configuration
-env_vars = agent.read_envfile("config.env")
+if os.path.exists("config.env"):
+    env_vars = agent.read_envfile("config.env")
+else:
+    env_vars = {}
 
 # Update environment with new configuration
 env_vars['SYNAPSE_DOMAIN_NAME'] = synapse_domain_name
 env_vars['ELEMENT_DOMAIN_NAME'] = element_domain_name
+env_vars['DEX_LDAP_DOMAIN'] = dex_ldap_domain
+env_vars['LETS_ENCRYPT'] = '1' if lets_encrypt else '0'
 
 # Get allocated TCP ports from environment - NS8 allocates sequential ports
 tcp_ports = os.environ.get('TCP_PORTS', '20001').split(',')
@@ -49,7 +56,7 @@ response = agent.tasks.run(
         'url': 'http://127.0.0.1:' + env_vars['SYNAPSE_PORT'],
         'host': synapse_domain_name,
         'http2https': True,
-        'lets_encrypt': True,
+        'lets_encrypt': lets_encrypt,
     },
 )
 agent.assert_exp(response['exit_code'] == 0)
@@ -63,7 +70,10 @@ response = agent.tasks.run(
         'url': 'http://127.0.0.1:' + env_vars['ELEMENT_PORT'],
         'host': element_domain_name,
         'http2https': True,
-        'lets_encrypt': True,
+        'lets_encrypt': lets_encrypt,
     },
 )
 agent.assert_exp(response['exit_code'] == 0)
+
+# Bind the new domain, overriding previous values (unbind)
+agent.bind_user_domains([dex_ldap_domain])

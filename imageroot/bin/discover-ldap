@@ -5,34 +5,46 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 #
 
-import agent
+#
+# Find settings for LDAP service
+#
+
 import os
+import agent
+from agent.ldapproxy import Ldapproxy
 
-# Connect the local Redis replica
-rdb = agent.redis_connect(use_replica=True)
+if os.path.exists("config.env"):
+    config = agent.read_envfile("config.env")
+else:
+    config = {}
 
-# Get LDAP proxy settings from NS8 core
-# In NS8, LDAP is typically accessed via the ldapproxy service
-ldap_host = "127.0.0.1"
-ldap_port = "20001"  # Standard NS8 LDAP proxy port
-ldap_base_dn = "dc=directory,dc=nh"
+udomname = config.get('DEX_LDAP_DOMAIN','')
 
-envfile = "ldap.env"
+try:
+    odom = Ldapproxy().get_domain(udomname)
+    'host' in odom # Throw exception if odom is None
+except:
+    # During restore the domain could be unavailable. Use a fallback
+    # configuration, pointing to nowhere, just to set the variables.
+    # Once the domain becomes available, the event will fix them.
+    odom = {
+        'host': '127.0.0.1',
+        'port': 20000,
+        'schema': 'rfc2307',
+        'location': 'internal',
+        'base_dn': 'dc=dex,dc=invalid',
+        'bind_dn': 'cn=example,dc=dex,dc=invalid',
+        'bind_password': 'invalid',
+    }
 
-# Using .tmp suffix: do not overwrite the target file until the new one is
-# saved to disk:
-with open(envfile + ".tmp", "w") as efp:
-    print(f"LDAP_ENABLED=1", file=efp)
-    print(f"LDAP_HOST={ldap_host}", file=efp)
-    print(f"LDAP_PORT={ldap_port}", file=efp)
-    print(f"LDAP_BASE_DN={ldap_base_dn}", file=efp)
-    print(f"LDAP_BIND_DN=", file=efp)
-    print(f"LDAP_BIND_PASSWORD=", file=efp)
-    print(f"LDAP_USER_FILTER=(objectClass=person)", file=efp)
+tmpfile = "discover.env." + str(os.getpid())
 
-# Commit changes by replacing the existing envfile:
-os.replace(envfile + ".tmp", envfile)
+with open(tmpfile, "w") as denv:
+    print('DEX_LDAP_PORT=' + str(odom['port']), file=denv)
+    print('DEX_LDAP_USER=' + odom['bind_dn'], file=denv)
+    print('DEX_LDAP_HOST=' + odom['host'], file=denv)
+    print('DEX_LDAP_PASS=' + odom['bind_password'], file=denv)
+    print('DEX_LDAP_SCHEMA=' + odom['schema'], file=denv)
+    print('DEX_LDAP_BASE=' + odom['base_dn'], file=denv)
 
-# NOTE: The generated envfile can be included in the service container
-#       with `podman run --env-file` or in Systemd unit with
-#       `Environment=-%S/state/ldap.env`
+os.replace(tmpfile, "discovery.env")

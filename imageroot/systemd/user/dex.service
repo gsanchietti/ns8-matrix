@@ -25,7 +25,6 @@ ExecStart=/usr/bin/podman run \
     --cgroups=no-conmon \
     --replace --name=dex \
     --publish=127.0.0.1:${DEX_PORT}:5556 \
-    --volume=dex-config:/etc/dex:Z \
     --volume=dex-data:/var/lib/dex:Z \
     --volume=%S/state/dex-config:/etc/dex:Z \
     dexidp/dex:v2.44.0-alpine \

@@ -34,10 +34,12 @@ Let's assume that the matrix instance is named `matrix1`.
 Launch `configure-module`, by setting the following parameters:
 - `synapse_domain_name`: The fully qualified domain name for the Matrix server (e.g., `matrix.example.com`)
 - `element_domain_name`: The fully qualified domain name for the Element web client (e.g., `chat.example.com`)
+- `lets_encrypt`: Set to `true` to enable automatic SSL certificate generation via Let's Encrypt for both domains.
+- `dex_ldap_domain`: The LDAP domain name to be used by Dex for authentication. If not provided, the default LDAP domain will be used.
 
 Example:
 
-    api-cli run module/matrix1/configure-module --data '{"synapse_domain_name": "matrix.example.com", "element_domain_name": "chat.example.com"}'
+    api-cli run module/matrix1/configure-module --data '{"synapse_domain_name": "matrix.example.com", "element_domain_name": "chat.example.com", "lets_encrypt": true, "dex_ldap_domain": "users.example.com"}'
 
 The above command will:
 - Configure Dex as OpenID Connect provider with LDAP backend

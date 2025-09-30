@@ -3,7 +3,7 @@ pid_file: /data/homeserver.pid
 web_client_location: https://${ELEMENT_DOMAIN_NAME}/
 
 listeners:
-  - port: 8008
+  - port: ${SYNAPSE_PORT}
     tls: false
     type: http
     x_forwarded: true

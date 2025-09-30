@@ -7,15 +7,25 @@
 
 import json
 import sys
+import os
 import agent
 
 config = {}
 
-# Read current configuration from config file
-env_vars = agent.read_envfile("config.env")
+if os.path.exists("config.env"): 
+    # Read current configuration from config file
+    env_vars = agent.read_envfile("config.env")
 
-# Extract configuration values
-config['synapse_domain_name'] = env_vars.get('SYNAPSE_DOMAIN_NAME', '')
-config['element_domain_name'] = env_vars.get('ELEMENT_DOMAIN_NAME', '')
+    # Extract configuration values
+    config['synapse_domain_name'] = env_vars.get('SYNAPSE_DOMAIN_NAME', '')
+    config['element_domain_name'] = env_vars.get('ELEMENT_DOMAIN_NAME', '')
+    config['dex_ldap_domain'] = env_vars.get('DEX_LDAP_DOMAIN', '')
+    config['lets_encrypt'] = env_vars.get('LETS_ENCRYPT', '0') == '1'
+else:
+    # No configuration file found, return empty configuration
+    config['synapse_domain_name'] = ''
+    config['element_domain_name'] = ''
+    config['dex_ldap_domain'] = ''
+    config['lets_encrypt'] = False
 
 json.dump(config, fp=sys.stdout)
