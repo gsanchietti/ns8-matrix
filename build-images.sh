@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #
-# Copyright (C) 2023 Nethesis S.r.l.
+# Copyright (C) 2025 Nethesis S.r.l.
 # SPDX-License-Identifier: GPL-3.0-or-later
 #
 
@@ -25,13 +25,11 @@ if ! buildah containers --format "{{.ContainerName}}" | grep -q nodebuilder-matr
 fi
 
 echo "Build static UI files with node..."
-# Note: UI build currently disabled due to network restrictions in CI
-# buildah run \
-#     --workingdir=/usr/src/ui \
-#     --env="NODE_OPTIONS=--openssl-legacy-provider" \
-#     nodebuilder-matrix \
-#     sh -c "yarn install && yarn build"
-echo "Using placeholder UI files for now..."
+buildah run \
+    --workingdir=/usr/src/ui \
+    --env="NODE_OPTIONS=--openssl-legacy-provider" \
+    nodebuilder-matrix \
+    sh -c "yarn install && yarn build"
 
 # Add imageroot directory to the container image
 buildah add "${container}" imageroot /imageroot
