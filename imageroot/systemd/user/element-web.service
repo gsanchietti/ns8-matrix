@@ -27,6 +27,7 @@ ExecStart=/usr/bin/podman run \
     --replace --name=element-web \
     --network=host \
     --volume=%S/state/element-config:/app/config:Z \
+    --env-file=config.env \
     ${ELEMENT_WEB_IMAGE}
 ExecStop=/usr/bin/podman stop --ignore --cidfile %t/element-web.ctr-id -t 10
 ExecStopPost=/usr/bin/podman rm --ignore -f --cidfile %t/element-web.ctr-id

@@ -46,5 +46,6 @@ with open(tmpfile, "w") as denv:
     print('DEX_LDAP_BIND_PASSWORD=' + odom['bind_password'], file=denv)
     print('DEX_LDAP_SCHEMA=' + odom['schema'], file=denv)
     print('DEX_LDAP_BASE_DN=' + odom['base_dn'], file=denv)
+    print('DEX_LDAP_USER_FILTER=(objectClass=inetOrgPerson)', file=denv)
 
 os.replace(tmpfile, "ldap.env")

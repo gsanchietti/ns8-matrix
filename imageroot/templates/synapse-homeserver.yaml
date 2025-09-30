@@ -56,14 +56,14 @@ oidc_providers:
   - idp_id: dex
     idp_name: "NethServer LDAP"
     skip_verification: true # This is needed as Dex is served on an insecure endpoint
-    issuer: "http://127.0.0.1:${DEX_PORT}/dex"
+    issuer: "https://${SYNAPSE_DOMAIN_NAME}/dex"
     client_id: "synapse"
     client_secret: "synapse-secret"
     scopes: ["openid", "profile", "email"]
-    authorization_endpoint: "http://127.0.0.1:${DEX_PORT}/dex/auth"
-    token_endpoint: "http://127.0.0.1:${DEX_PORT}/dex/token"
-    userinfo_endpoint: "http://127.0.0.1:${DEX_PORT}/dex/userinfo"
-    jwks_uri: "http://127.0.0.1:${DEX_PORT}/dex/keys"
+    authorization_endpoint: "https://${SYNAPSE_DOMAIN_NAME}/dex/auth"
+    token_endpoint: "https://${SYNAPSE_DOMAIN_NAME}/dex/token"
+    userinfo_endpoint: "https://${SYNAPSE_DOMAIN_NAME}/dex/userinfo"
+    jwks_uri: "https://${SYNAPSE_DOMAIN_NAME}/dex/keys"
     discover: false
     user_mapping_provider:
       config:

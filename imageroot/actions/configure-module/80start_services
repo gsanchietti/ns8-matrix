@@ -7,12 +7,19 @@
 
 # If the control reaches this step, the service can be enabled and started
 
-# Ensure LDAP and SMTP environment files exist
+# Ensure all environment files exist
 touch ldap.env
 touch smarthost.env
+touch config.env
 
-# Start and enable Matrix services
-systemctl --user enable --now dex.service
-systemctl --user enable --now synapse.service  
-systemctl --user enable --now element-web.service
-systemctl --user enable --now matrix.service
+# Enable Matrix services
+systemctl --user enable dex.service
+systemctl --user enable synapse.service  
+systemctl --user enable element-web.service
+systemctl --user enable matrix.service
+
+# Restart Matrix services
+systemctl --user restart dex.service
+systemctl --user restart synapse.service  
+systemctl --user restart element-web.service
+systemctl --user restart matrix.service

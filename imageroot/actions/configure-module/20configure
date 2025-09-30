@@ -41,7 +41,7 @@ tcp_ports = os.environ.get('TCP_PORTS', '20001').split(',')
 # Assign ports to services
 env_vars['DEX_PORT'] = tcp_ports[0]
 env_vars['SYNAPSE_PORT'] = tcp_ports[1]
-env_vars['ELEMENT_PORT'] = tcp_ports[2]
+env_vars['ELEMENT_WEB_PORT'] = tcp_ports[2]
 env_vars['SYGNAL_PORT'] = tcp_ports[3] # For future use
 
 # Write updated configuration
@@ -55,6 +55,21 @@ response = agent.tasks.run(
         'instance': os.environ['MODULE_ID'] + '-synapse',
         'url': 'http://127.0.0.1:' + env_vars['SYNAPSE_PORT'],
         'host': synapse_domain_name,
+        'http2https': True,
+        'lets_encrypt': lets_encrypt,
+    },
+)
+agent.assert_exp(response['exit_code'] == 0)
+
+# Configure Traefik routes for Dex OIDC server using Synapse domain
+response = agent.tasks.run(
+    agent_id=agent.resolve_agent_id('traefik@node'),
+    action='set-route',
+    data={
+        'instance': os.environ['MODULE_ID'] + '-dex',
+        'url': 'http://127.0.0.1:' + env_vars['DEX_PORT'] + '/dex',
+        'host': synapse_domain_name,
+        'path': '/dex',
         'http2https': True,
         'lets_encrypt': lets_encrypt,
     },

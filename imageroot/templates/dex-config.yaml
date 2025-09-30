@@ -1,4 +1,4 @@
-issuer: http://127.0.0.1:${DEX_PORT}/dex
+issuer: https://${SYNAPSE_DOMAIN_NAME}/dex
 
 storage:
   type: sqlite3
