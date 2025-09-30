@@ -21,14 +21,8 @@ if not synapse_domain_name or not element_domain_name:
     print("ERROR: Both synapse_domain_name and element_domain_name are required", file=sys.stderr)
     sys.exit(1)
 
-# Read current environment
-env_vars = {}
-with open('environment', 'r') as f:
-    for line in f:
-        line = line.strip()
-        if '=' in line and not line.startswith('#'):
-            key, value = line.split('=', 1)
-            env_vars[key] = value
+# Read current configuration
+env_vars = agent.read_envfile("config.env")
 
 # Update environment with new configuration
 env_vars['SYNAPSE_DOMAIN_NAME'] = synapse_domain_name
@@ -50,10 +44,8 @@ env_vars['DEX_PORT'] = tcp_ports[0] if len(tcp_ports) > 0 else str(base_port)
 env_vars['SYNAPSE_PORT'] = tcp_ports[1] if len(tcp_ports) > 1 else str(base_port + 1)
 env_vars['ELEMENT_PORT'] = tcp_ports[2] if len(tcp_ports) > 2 else str(base_port + 2)
 
-# Write updated environment
-with open('environment', 'w') as f:
-    for key, value in env_vars.items():
-        f.write(f'{key}={value}\n')
+# Write updated configuration
+agent.write_envfile("config.env", env_vars)
 
 # Configure Traefik routes for Synapse Matrix server
 response = agent.tasks.run(

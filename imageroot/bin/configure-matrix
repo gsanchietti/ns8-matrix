@@ -9,6 +9,7 @@ import os
 import sys
 import secrets
 import string
+import agent
 
 def generate_secret(length=32):
     """Generate a random secret string"""
@@ -21,40 +22,26 @@ def substitute_env_vars(content, env_vars):
         content = content.replace(f'${{{key}}}', str(value))
     return content
 
-# Read environment variables
-env_vars = {}
-with open('environment', 'r') as f:
-    for line in f:
-        line = line.strip()
-        if '=' in line and not line.startswith('#'):
-            key, value = line.split('=', 1)
-            env_vars[key] = value
+# Read environment variables from config
+env_vars = agent.read_envfile("config.env")
 
 # Read LDAP environment if available
-if os.path.exists('ldap.env'):
-    with open('ldap.env', 'r') as f:
-        for line in f:
-            line = line.strip()
-            if '=' in line and not line.startswith('#'):
-                key, value = line.split('=', 1)
-                env_vars[key] = value
+ldap_env = agent.read_envfile("ldap.env")
+env_vars.update(ldap_env)
 
 # Generate secrets if they don't exist
 secrets_file = 'matrix-secrets.env'
 if not os.path.exists(secrets_file):
-    with open(secrets_file, 'w') as f:
-        f.write(f"REGISTRATION_SECRET={generate_secret()}\n")
-        f.write(f"MACAROON_SECRET={generate_secret()}\n")
-        f.write(f"FORM_SECRET={generate_secret()}\n")
+    secrets_env = {
+        "REGISTRATION_SECRET": generate_secret(),
+        "MACAROON_SECRET": generate_secret(),
+        "FORM_SECRET": generate_secret()
+    }
+    agent.write_envfile(secrets_file, secrets_env)
 
 # Read generated secrets
-if os.path.exists(secrets_file):
-    with open(secrets_file, 'r') as f:
-        for line in f:
-            line = line.strip()
-            if '=' in line and not line.startswith('#'):
-                key, value = line.split('=', 1)
-                env_vars[key] = value
+secrets_env = agent.read_envfile(secrets_file)
+env_vars.update(secrets_env)
 
 # Create configuration directories
 os.makedirs('dex-config', exist_ok=True)

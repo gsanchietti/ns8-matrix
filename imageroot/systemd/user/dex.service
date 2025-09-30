@@ -12,7 +12,7 @@ After=network-online.target
 
 [Service]
 Environment=PODMAN_SYSTEMD_UNIT=%n
-EnvironmentFile=%S/state/environment
+EnvironmentFile=%S/state/config.env
 WorkingDirectory=%S/state
 Restart=always
 ExecStartPre=/bin/rm -f %t/dex.pid %t/dex.ctr-id

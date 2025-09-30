@@ -13,7 +13,7 @@ Wants=synapse.service
 
 [Service]
 Environment=PODMAN_SYSTEMD_UNIT=%n
-EnvironmentFile=%S/state/environment
+EnvironmentFile=%S/state/config.env
 WorkingDirectory=%S/state
 Restart=always
 ExecStartPre=/bin/rm -f %t/element-web.pid %t/element-web.ctr-id

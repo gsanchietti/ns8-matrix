@@ -7,20 +7,15 @@
 
 import json
 import sys
-import os
+import agent
 
 config = {}
 
-# Read current configuration from environment file
-if os.path.exists('environment'):
-    with open('environment', 'r') as f:
-        for line in f:
-            line = line.strip()
-            if '=' in line and not line.startswith('#'):
-                key, value = line.split('=', 1)
-                if key == 'SYNAPSE_DOMAIN_NAME':
-                    config['synapse_domain_name'] = value
-                elif key == 'ELEMENT_DOMAIN_NAME':
-                    config['element_domain_name'] = value
+# Read current configuration from config file
+env_vars = agent.read_envfile("config.env")
+
+# Extract configuration values
+config['synapse_domain_name'] = env_vars.get('SYNAPSE_DOMAIN_NAME', '')
+config['element_domain_name'] = env_vars.get('ELEMENT_DOMAIN_NAME', '')
 
 json.dump(config, fp=sys.stdout)
