@@ -1,6 +1,8 @@
 server_name: ${SYNAPSE_DOMAIN_NAME}
 pid_file: /data/homeserver.pid
 web_client_location: https://${ELEMENT_DOMAIN_NAME}/
+public_baseurl: https://${SYNAPSE_DOMAIN_NAME}/
+default_identity_server: https://${SYNAPSE_DOMAIN_NAME}/dex
 
 listeners:
   - port: ${SYNAPSE_PORT}
@@ -9,7 +11,7 @@ listeners:
     x_forwarded: true
     bind_addresses: ['0.0.0.0']
     resources:
-      - names: [client, federation]
+      - names: [client]
 
 database:
   name: sqlite3
@@ -29,7 +31,7 @@ dynamic_thumbnails: false
 url_preview_enabled: false
 
 enable_registration: false
-registration_shared_secret: ${REGISTRATION_SECRET}
+#registration_shared_secret: ${REGISTRATION_SECRET}
 
 report_stats: false
 
@@ -37,8 +39,8 @@ macaroon_secret_key: ${MACAROON_SECRET}
 form_secret: ${FORM_SECRET}
 signing_key_path: "/data/${SYNAPSE_DOMAIN_NAME}.signing.key"
 
-trusted_key_servers:
-  - server_name: "matrix.org"
+#trusted_key_servers:
+#  - server_name: "matrix.org"
 
 # Email configuration for notifications
 email:

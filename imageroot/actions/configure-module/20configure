@@ -82,7 +82,7 @@ response = agent.tasks.run(
     action='set-route',
     data={
         'instance': os.environ['MODULE_ID'] + '-element',
-        'url': 'http://127.0.0.1:' + env_vars['ELEMENT_PORT'],
+        'url': 'http://127.0.0.1:' + env_vars['ELEMENT_WEB_PORT'],
         'host': element_domain_name,
         'http2https': True,
         'lets_encrypt': lets_encrypt,
