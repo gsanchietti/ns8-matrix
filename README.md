@@ -148,4 +148,4 @@ NethVoice CTI integration:
 - Evaluate if [Sygnal Push Gateway](https://github.com/element-hq/sygnal) is required (it should not)
 - Add support for [VoIP and Video calls](https://element-hq.github.io/synapse/latest/usage/calls.html) with [Element Call](https://github.com/element-hq/element-call)
 - Add Whatsapp Bridge with [mautrix-whatsapp](https://github.com/mautrix/whatsapp)
-- Add Telegram Bridge with [mautrix-telegram](
+- Add Telegram Bridge with [mautrix-telegram](https://github.com/mautrix/telegram)
